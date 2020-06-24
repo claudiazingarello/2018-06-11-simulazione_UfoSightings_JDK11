@@ -2,12 +2,14 @@ package it.polito.tdp.ufo;
 
 import java.net.URL;
 import java.time.Year;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.ufo.model.AnnoAvvistamenti;
 import it.polito.tdp.ufo.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 
@@ -23,17 +25,46 @@ public class FXMLController {
 
     @FXML
     private ComboBox<AnnoAvvistamenti> boxAnno;
+    @FXML
+    private Button btnAnalizza;
 
     @FXML
-    private ComboBox<?> boxStato;
+    private Button btnSequenza;
+    
+    @FXML
+    private ComboBox<String> boxStato;
 
     @FXML
     private TextArea txtResult;
 
     @FXML
     void handleAnalizza(ActionEvent event) {
-
-    }
+    	txtResult.clear();
+    	if(model.getStati() == null) {
+    		txtResult.appendText("ERRORE: il grafo non ha vertici");
+    		return;
+    	}
+    	
+    	String stato = boxStato.getValue();
+    	
+    	if (stato == null) {
+    		txtResult.appendText("ERRORE: devi selezionare uno stato!");
+    		return;
+    	}
+    	
+    	List<String> statiPrecedenti = model.getStatiPrecedenti(stato);
+    	List<String> statiSuccessivi = model.getStatiSuccessivi(stato);
+    	
+    	txtResult.appendText("Stati precedenti a "+stato+":\n\n");
+    	for(String s : statiPrecedenti) {
+    		txtResult.appendText(s.toString()+ "\n");
+    	}
+    	
+    	txtResult.appendText("Stati successivi a "+stato+":\n\n");
+    	for(String s : statiSuccessivi) {
+    		txtResult.appendText(s.toString()+ "\n");
+    	}
+    	}
 
     @FXML
     void handleAvvistamenti(ActionEvent event) {
@@ -49,18 +80,30 @@ public class FXMLController {
     	Year anno = aa.getAnno();
     	
     	model.creaGrafo(anno);
+    	btnAnalizza.setDisable(false);  
     	
+    	txtResult.appendText("Grafo creato!");
+    	boxStato.getItems().addAll(model.getStati());
+    	btnSequenza.setDisable(false);
     }
 
     @FXML
     void handleSequenza(ActionEvent event) {
-
+    	
+    	String stato = boxStato.getValue();
+    	if(stato == null) {
+    		txtResult.appendText("ERRORE: devi selezionare uno stato!");
+    		return;
+    	}
+    	
     }
 
     @FXML
     void initialize() {
         assert boxAnno != null : "fx:id=\"boxAnno\" was not injected: check your FXML file 'Ufo.fxml'.";
         assert boxStato != null : "fx:id=\"boxStato\" was not injected: check your FXML file 'Ufo.fxml'.";
+        assert btnAnalizza != null : "fx:id=\"btnAnalizza\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert btnSequenza != null : "fx:id=\"btnSequenza\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Ufo.fxml'.";
 
     }
@@ -69,5 +112,8 @@ public class FXMLController {
 		this.model = model;
 		
 		boxAnno.getItems().addAll(model.listAnnoAvvistamenti());
+		btnAnalizza.setDisable(true);
+		btnSequenza.setDisable(true);
+		
 	}
 }
