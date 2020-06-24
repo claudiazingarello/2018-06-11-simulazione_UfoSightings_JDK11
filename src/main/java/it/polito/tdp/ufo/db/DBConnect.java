@@ -8,7 +8,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public class DBConnect {
 
-	private static final String jdbcURL = "jdbc:mysql://localhost/ufo_sightings_DB";
+	private static final String jdbcURL = "jdbc:mysql://localhost/ufo_sightings";
 	private static HikariDataSource ds;
 	
 	public static Connection getConnection() {

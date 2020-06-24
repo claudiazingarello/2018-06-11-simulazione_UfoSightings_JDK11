@@ -1,8 +1,10 @@
 package it.polito.tdp.ufo;
 
 import java.net.URL;
+import java.time.Year;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.ufo.model.AnnoAvvistamenti;
 import it.polito.tdp.ufo.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,7 +22,7 @@ public class FXMLController {
     private URL location;
 
     @FXML
-    private ComboBox<?> boxAnno;
+    private ComboBox<AnnoAvvistamenti> boxAnno;
 
     @FXML
     private ComboBox<?> boxStato;
@@ -35,7 +37,19 @@ public class FXMLController {
 
     @FXML
     void handleAvvistamenti(ActionEvent event) {
-
+    	txtResult.clear();
+    	
+    	AnnoAvvistamenti aa = boxAnno.getValue();
+    	
+    	if (aa == null) {
+    		txtResult.appendText("ERRORE: devi selezionare un anno!");
+    		return;
+    	}
+    	
+    	Year anno = aa.getAnno();
+    	
+    	model.creaGrafo(anno);
+    	
     }
 
     @FXML
@@ -53,5 +67,7 @@ public class FXMLController {
 
 	public void setModel(Model model) {
 		this.model = model;
+		
+		boxAnno.getItems().addAll(model.listAnnoAvvistamenti());
 	}
 }
