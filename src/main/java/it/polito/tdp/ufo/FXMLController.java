@@ -53,17 +53,16 @@ public class FXMLController {
     	}
     	
     	List<String> statiPrecedenti = model.getStatiPrecedenti(stato);
+    	txtResult.appendText("Stati PRECEDENTI a "+stato+":\n");
+    	txtResult.appendText(statiPrecedenti.toString()+"\n");
+    	
     	List<String> statiSuccessivi = model.getStatiSuccessivi(stato);
+    	txtResult.appendText("\nStati SUCCESSIVI a "+stato+":\n");
+    	txtResult.appendText(statiSuccessivi.toString()+"\n");
     	
-    	txtResult.appendText("Stati precedenti a "+stato+":\n\n");
-    	for(String s : statiPrecedenti) {
-    		txtResult.appendText(s.toString()+ "\n");
-    	}
-    	
-    	txtResult.appendText("Stati successivi a "+stato+":\n\n");
-    	for(String s : statiSuccessivi) {
-    		txtResult.appendText(s.toString()+ "\n");
-    	}
+    	List<String> statiRaggiungibili = model.getStatiRaggiungibili(stato);
+    	txtResult.appendText("\nStati RAGGIUNGIBILI da "+stato+":\n");
+    	txtResult.appendText(statiRaggiungibili.toString()+"\n");
     	}
 
     @FXML
@@ -96,6 +95,9 @@ public class FXMLController {
     		return;
     	}
     	
+    	List<String> sequenza = model.getPercorsoMassimo(stato);
+    	txtResult.appendText("\nStato di partenza: "+stato+"\n");
+    	txtResult.appendText("Percorso massimo: "+ sequenza+"\n");
     }
 
     @FXML

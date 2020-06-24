@@ -2,23 +2,35 @@ package it.polito.tdp.ufo.model;
 
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.EdgeTraversalEvent;
+import org.jgrapht.event.TraversalListener;
+import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.GraphIterator;
 
 import it.polito.tdp.ufo.db.SightingsDAO;
 
 public class Model {
 
-	SightingsDAO dao;
-	List<AnnoAvvistamenti> listAnnoAvvistamenti;
-	List<String> stati;
-	List<String> statiPrecedenti;
-	List<String> statiSuccessivi;
-	
+	private SightingsDAO dao;
+	private List<AnnoAvvistamenti> listAnnoAvvistamenti;
+	private List<String> stati;
+	private List<String> statiPrecedenti;
+	private List<String> statiSuccessivi;
+
+	//per la ricorsione
+	List<String> statiConsecutivi;
+	List<String> percorsoBest;
+
 	Graph<String, DefaultEdge> grafo;
 
 	public Model() {
@@ -61,4 +73,61 @@ public class Model {
 		statiSuccessivi = Graphs.successorListOf(grafo, stato);
 		return statiSuccessivi;
 	}
+
+	public List<String> getStatiRaggiungibili(String stato) {
+		List<String> raggiungibili = new ArrayList<>();
+
+		GraphIterator<String, DefaultEdge> bfv = new BreadthFirstIterator<>(grafo, stato);
+		//se metto null parte da un vertice a caso
+
+		//		bfv.next(); se non voglio salvare il primo
+		while(bfv.hasNext()) {
+			raggiungibili.add( bfv.next() ) ;
+		}
+
+		//rimuovo lo stato da cui partiamo
+		raggiungibili.remove(0);
+		return raggiungibili ;
+	}
+
+	// SOLUZIONE PUNTO 2
+
+	public List<String> getPercorsoMassimo(String stato) {
+		this.percorsoBest = new ArrayList<String>();
+
+		List<String> parziale = new ArrayList<String>();
+		parziale.add(stato);
+
+		cerca(parziale);
+
+
+		return percorsoBest;
+	}
+
+	private void cerca(List<String> parziale) {
+
+		//Genera nuove soluzioni
+		String ultimo = parziale.get(parziale.size() -1);
+
+		List<String> vicini = Graphs.successorListOf(grafo, ultimo);
+
+		for(String prossimo : vicini) {
+			if(!parziale.contains(prossimo)) {
+				
+					parziale.add(prossimo);
+					cerca(parziale);
+
+					//oppure parziale.size()-1
+					parziale.remove(parziale.size()-1); //rimuovo quello in posizione size()-1
+				
+			}
+		}
+
+		//valuta caso terminale
+			if(parziale.size() > percorsoBest.size()) {
+				percorsoBest = new ArrayList<String>(parziale); //clona il best
+		}
+	}
+
 }
+
